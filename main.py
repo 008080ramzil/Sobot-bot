@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 """
 28-day Sobriety Challenge Telegram Bot with AI Motivation
 """
@@ -9,11 +9,13 @@ import logging
 import asyncio
 import os
 from datetime import datetime
-from aiogram import Bot, Dispatcher, types, Router, F
+from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import ai_motivator
+from aiogram import F, Router
+from aiohttp import web
 
 # Bot configuration
 API_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -368,7 +370,8 @@ async def ask_evening_question():
     save_data()
 
 # Main function
-async def main():
+async def start_bot():
+    """Start bot and scheduler"""
     # Setup logging
     logging.basicConfig(level=logging.INFO)
     
@@ -382,46 +385,15 @@ async def main():
     scheduler.start()
     
     logging.info("Starting 28-day Sobriety Challenge Bot with AI Features...")
-    
-    # Start polling
     await dp.start_polling(bot)
-
-if __name__ == '__main__':
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("Bot stopped by user")
-    except Exception as e:
-        print(f"Fatal error: {e}")
-
-# ... (весь предыдущий код остается без изменений) ...
-
-# Изменяем функцию main и запуск приложения
-from aiohttp import web
 
 async def health_check(request):
-    """Endpoint для проверки работоспособности"""
     return web.Response(text="Bot is running")
 
-async def start_bot():
-    """Запуск бота в фоновом режиме"""
-    # Setup logging
-    logging.basicConfig(level=logging.INFO)
-    
-    # Setup scheduler
-    scheduler.add_job(send_daily_motivation, 'cron', hour=9, minute=0)
-    scheduler.add_job(ask_morning_question, 'cron', hour=13, minute=0)
-    scheduler.add_job(ask_evening_question, 'cron', hour=20, minute=0)
-    scheduler.start()
-    
-    logging.info("Starting 28-day Sobriety Challenge Bot with AI Features...")
-    await dp.start_polling(bot)
-
 async def init_app():
-    """Инициализация веб-приложения"""
     app = web.Application()
     app.router.add_get('/', health_check)
-    app.on_startup.append(start_bot)
+    asyncio.create_task(start_bot())
     return app
 
 if __name__ == '__main__':
