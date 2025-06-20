@@ -393,3 +393,36 @@ if __name__ == '__main__':
         print("Bot stopped by user")
     except Exception as e:
         print(f"Fatal error: {e}")
+
+# ... (весь предыдущий код остается без изменений) ...
+
+# Изменяем функцию main и запуск приложения
+from aiohttp import web
+
+async def health_check(request):
+    """Endpoint для проверки работоспособности"""
+    return web.Response(text="Bot is running")
+
+async def start_bot():
+    """Запуск бота в фоновом режиме"""
+    # Setup logging
+    logging.basicConfig(level=logging.INFO)
+    
+    # Setup scheduler
+    scheduler.add_job(send_daily_motivation, 'cron', hour=9, minute=0)
+    scheduler.add_job(ask_morning_question, 'cron', hour=13, minute=0)
+    scheduler.add_job(ask_evening_question, 'cron', hour=20, minute=0)
+    scheduler.start()
+    
+    logging.info("Starting 28-day Sobriety Challenge Bot with AI Features...")
+    await dp.start_polling(bot)
+
+async def init_app():
+    """Инициализация веб-приложения"""
+    app = web.Application()
+    app.router.add_get('/', health_check)
+    app.on_startup.append(start_bot)
+    return app
+
+if __name__ == '__main__':
+    web.run_app(init_app(), port=int(os.environ.get("PORT", 8080)))
