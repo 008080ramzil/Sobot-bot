@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sob-bot
+    env: python
+    region: frankfurt  # Выберите ближайший регион
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: TELEGRAM_TOKEN
+        value: your_telegram_token
+      - key: OPENAI_API_KEY
+        value: your_openai_api_key
