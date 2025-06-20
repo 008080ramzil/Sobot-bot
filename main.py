@@ -14,7 +14,8 @@ from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import ai_motivator
-from aiogram import F, Router
+from aiogram import Router
+from aiogram import F
 from aiohttp import web
 
 # Bot configuration
